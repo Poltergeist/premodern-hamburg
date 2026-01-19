@@ -1,16 +1,229 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getEventsByCategory } from '../data/events';
 
+const eventsByCategory = getEventsByCategory();
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="PreModern Hamburg - Events">
+  <div class="hero">
+    <h1>🎴 Nächste Events</h1>
+    <p class="hero-subtitle">Entdecke die Magie vergangener Zeiten mit PreModern Magic in Hamburg</p>
+  </div>
+
+  <div class="events-section">
+    {Object.entries(eventsByCategory).map(([category, categoryEvents]) => (
+      <div class="category-section">
+        <h2 class="category-title">
+          <span class="category-icon">
+            {category === 'PreModern Hamburg' ? '⚔️' : '🌟'}
+          </span>
+          {category}
+        </h2>
+        
+        <div class="event-grid">
+          {categoryEvents.map(event => (
+            <a href={`/events/${event.id}`} class="event-card card">
+              <div class="event-header">
+                <span class="event-status">{event.status === 'upcoming' ? '📅 Upcoming' : '✓ Past'}</span>
+                <span class="event-date-badge">{event.date}</span>
+              </div>
+              
+              <h3 class="event-name">{event.name}</h3>
+              
+              <div class="event-details">
+                <div class="event-detail">
+                  <span class="detail-icon">📍</span>
+                  <span>{event.location.name}</span>
+                </div>
+                
+                {event.entryFee && (
+                  <div class="event-detail">
+                    <span class="detail-icon">💰</span>
+                    <span>{event.entryFee}</span>
+                  </div>
+                )}
+                
+                {event.prizes && (
+                  <div class="event-detail">
+                    <span class="detail-icon">🏆</span>
+                    <span>{event.prizes}</span>
+                  </div>
+                )}
+              </div>
+
+              <p class="event-description">{event.description.substring(0, 120)}...</p>
+              
+              <div class="event-footer">
+                <span class="view-details">Mehr Details →</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="info-section">
+    <div class="card">
+      <h2>📬 Dein Event hinzufügen?</h2>
+      <p>Wenn du möchtest, dass dein Tournament hier gelistet wird, kontaktiere uns auf Instagram!</p>
+      <a href="https://www.instagram.com/premodern.hamburg/" target="_blank" rel="noopener" class="btn">
+        @premodern.hamburg auf Instagram
+      </a>
+    </div>
+  </div>
+
+  <style>
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 3rem 1rem;
+    }
+
+    .hero h1 {
+      background: var(--gradient-magic);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+      color: var(--color-text-muted);
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .events-section {
+      margin-bottom: 3rem;
+    }
+
+    .category-section {
+      margin-bottom: 3rem;
+    }
+
+    .category-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--color-text);
+    }
+
+    .category-icon {
+      font-size: 1.5em;
+    }
+
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .event-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .event-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .event-status {
+      font-size: 0.85rem;
+      color: var(--color-green);
+      font-weight: 600;
+    }
+
+    .event-date-badge {
+      background: var(--color-medium-gray);
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+
+    .event-name {
+      color: var(--color-text);
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .event-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .event-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+
+    .detail-icon {
+      width: 20px;
+    }
+
+    .event-description {
+      color: var(--color-text-muted);
+      margin-bottom: 1rem;
+      flex-grow: 1;
+      line-height: 1.5;
+    }
+
+    .event-footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .view-details {
+      color: var(--color-blue);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .info-section {
+      margin-top: 4rem;
+    }
+
+    .info-section .card {
+      text-align: center;
+      padding: 2.5rem;
+    }
+
+    .info-section h2 {
+      margin-bottom: 1rem;
+    }
+
+    .info-section p {
+      color: var(--color-text-muted);
+      margin-bottom: 1.5rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</BaseLayout>
