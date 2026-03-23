@@ -82,6 +82,7 @@ if (!event) {
       </div>
 
       <div class="sidebar">
+        { event.status === 'upcoming' && (
         <div class="card info-card">
           <h3>💰 Teilnahme</h3>
           <div class="info-grid">
@@ -112,6 +113,7 @@ if (!event) {
             </a>
           )}
         </div>
+        )}
 
         <div class="card info-card">
           <h3>ℹ️ Wichtige Infos</h3>
@@ -123,12 +125,6 @@ if (!event) {
           </ul>
         </div>
 
-        <div class="card info-card">
-          <h3>📱 Social Media</h3>
-          <a href="https://www.instagram.com/premodern.hamburg/" target="_blank" rel="noopener" class="btn btn-secondary" style="width: 100%;">
-            @premodern.hamburg
-          </a>
-        </div>
       </div>
     </div>
   </div>
