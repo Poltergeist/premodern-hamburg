@@ -23,7 +23,7 @@ const eventsByCategory = getEventsByCategory();
         
         <div class="event-grid">
           {categoryEvents.map(event => (
-            <a href={`/events/${event.id}`} class="event-card card">
+            <a href={`${import.meta.env.BASE_URL}events/${event.id}`} class="event-card card">
               <div class="event-header">
                 <span class="event-status">{event.status === 'upcoming' ? '📅 Upcoming' : '✓ Past'}</span>
                 <span class="event-date-badge">{event.date}</span>
