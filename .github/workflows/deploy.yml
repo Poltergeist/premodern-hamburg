@@ -33,6 +33,9 @@ jobs:
       - name: Build Astro site
         run: npm run build
 
+      - name: Create CNAME file
+        run: echo "premodern-hamburg.eu" >> ./dist/CNAME
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
