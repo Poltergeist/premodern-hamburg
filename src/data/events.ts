@@ -17,6 +17,11 @@ export interface Event {
   status: "upcoming" | "completed" | "cancelled";
 }
 
+export interface EventsByStatusAndCategory {
+  upcoming: Record<string, Event[]>;
+  passedOrCancelled: Record<string, Event[]>;
+}
+
 export const events: Event[] = [
   {
     id: "2026-04-01-hamburg",
@@ -67,11 +72,9 @@ export function getEventById(id: string): Event | undefined {
 }
 
 export function getUpcomingEvents(): Event[] {
-  return events
-    .filter((event) => event.status === "upcoming")
-    .sort(
-      (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime(),
-    );
+  return sortEventsByDatetime(
+    events.filter((event) => event.status === "upcoming"),
+  );
 }
 
 export function getEventsByCategory(): { [key: string]: Event[] } {
@@ -85,4 +88,35 @@ export function getEventsByCategory(): { [key: string]: Event[] } {
   });
 
   return categorized;
+}
+
+export function getHomepageEvents(): EventsByStatusAndCategory {
+  const upcoming = sortEventsByDatetime(
+    events.filter((event) => event.status === "upcoming"),
+  );
+  const passedOrCancelled = sortEventsByDatetime(
+    events.filter((event) => event.status !== "upcoming"),
+  );
+
+  return {
+    upcoming: groupEventsByCategory(upcoming),
+    passedOrCancelled: groupEventsByCategory(passedOrCancelled),
+  };
+}
+
+function sortEventsByDatetime(eventsToSort: Event[]): Event[] {
+  return [...eventsToSort].sort(
+    (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime(),
+  );
+}
+
+function groupEventsByCategory(eventsToGroup: Event[]): Record<string, Event[]> {
+  return eventsToGroup.reduce<Record<string, Event[]>>((categorized, event) => {
+    if (!categorized[event.category]) {
+      categorized[event.category] = [];
+    }
+
+    categorized[event.category].push(event);
+    return categorized;
+  }, {});
 }

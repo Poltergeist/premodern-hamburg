@@ -1,8 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getEventsByCategory } from '../data/events';
+import { getHomepageEvents } from '../data/events';
 
-const eventsByCategory = getEventsByCategory();
+const homepageEvents = getHomepageEvents();
+const sections = [
+  {
+    title: 'Upcoming',
+    description: 'Bevorstehende PreModern-Events in Hamburg.',
+    eventsByCategory: homepageEvents.upcoming,
+  },
+  {
+    title: 'Passed / Cancelled',
+    description: 'Vergangene oder abgesagte Events zur Referenz.',
+    eventsByCategory: homepageEvents.passedOrCancelled,
+  },
+];
 ---
 
 <BaseLayout title="PreModern Hamburg - Events">
@@ -12,56 +24,83 @@ const eventsByCategory = getEventsByCategory();
   </div>
 
   <div class="events-section">
-    {Object.entries(eventsByCategory).map(([category, categoryEvents]) => (
-      <div class="category-section">
-        <h2 class="category-title">
-          <span class="category-icon">
-            {category === 'PreModern Hamburg' ? '⚔️' : '🌟'}
-          </span>
-          {category}
-        </h2>
-        
-        <div class="event-grid">
-          {categoryEvents.map(event => (
-            <a href={`${import.meta.env.BASE_URL}events/${event.id}`} class="event-card card">
-              <div class="event-header">
-                <span class="event-status">{event.status === 'upcoming' ? '📅 Upcoming' : '✓ Past'}</span>
-                <span class="event-date-badge">{event.date}</span>
-              </div>
-              
-              <h3 class="event-name">{event.name}</h3>
-              
-              <div class="event-details">
-                <div class="event-detail">
-                  <span class="detail-icon">📍</span>
-                  <span>{event.location.name}</span>
-                </div>
-                
-                {event.entryFee && (
-                  <div class="event-detail">
-                    <span class="detail-icon">💰</span>
-                    <span>{event.entryFee}</span>
-                  </div>
-                )}
-                
-                {event.prizes && (
-                  <div class="event-detail">
-                    <span class="detail-icon">🏆</span>
-                    <span>{event.prizes}</span>
-                  </div>
-                )}
-              </div>
+    {sections.map(
+      ({ title, description, eventsByCategory }) =>
+        Object.keys(eventsByCategory).length > 0 && (
+          <section class="status-section">
+            <div class="section-heading">
+              <h2>{title}</h2>
+              <p>{description}</p>
+            </div>
 
-              <p class="event-description">{event.description.substring(0, 120)}...</p>
-              
-              <div class="event-footer">
-                <span class="view-details">Mehr Details →</span>
+            {Object.entries(eventsByCategory).map(([category, categoryEvents]) => (
+              <div class="category-section">
+                <h3 class="category-title">
+                  <span class="category-icon">
+                    {category === 'PreModern Hamburg' ? '⚔️' : '🌟'}
+                  </span>
+                  {category}
+                </h3>
+
+                <div class="event-grid">
+                  {categoryEvents.map(event => (
+                    <a href={`${import.meta.env.BASE_URL}events/${event.id}`} class="event-card card">
+                      <div class="event-header">
+                        <span
+                          class:list={[
+                            'event-status',
+                            {
+                              upcoming: event.status === 'upcoming',
+                              completed: event.status === 'completed',
+                              cancelled: event.status === 'cancelled',
+                            },
+                          ]}
+                        >
+                          {event.status === 'upcoming'
+                            ? '📅 Upcoming'
+                            : event.status === 'completed'
+                              ? '✓ Past'
+                              : '❌ Cancelled'}
+                        </span>
+                        <span class="event-date-badge">{event.date}</span>
+                      </div>
+
+                      <h3 class="event-name">{event.name}</h3>
+
+                      <div class="event-details">
+                        <div class="event-detail">
+                          <span class="detail-icon">📍</span>
+                          <span>{event.location.name}</span>
+                        </div>
+
+                        {event.entryFee && (
+                          <div class="event-detail">
+                            <span class="detail-icon">💰</span>
+                            <span>{event.entryFee}</span>
+                          </div>
+                        )}
+
+                        {event.prizes && (
+                          <div class="event-detail">
+                            <span class="detail-icon">🏆</span>
+                            <span>{event.prizes}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <p class="event-description">{event.description.substring(0, 120)}...</p>
+
+                      <div class="event-footer">
+                        <span class="view-details">Mehr Details →</span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
               </div>
-            </a>
-          ))}
-        </div>
-      </div>
-    ))}
+            ))}
+          </section>
+        ),
+    )}
   </div>
 
 
@@ -89,6 +128,23 @@ const eventsByCategory = getEventsByCategory();
 
     .events-section {
       margin-bottom: 3rem;
+    }
+
+    .status-section {
+      margin-bottom: 4rem;
+    }
+
+    .section-heading {
+      margin-bottom: 2rem;
+    }
+
+    .section-heading h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .section-heading p {
+      color: var(--color-text-muted);
+      margin: 0;
     }
 
     .category-section {
@@ -139,8 +195,19 @@ const eventsByCategory = getEventsByCategory();
 
     .event-status {
       font-size: 0.85rem;
-      color: var(--color-green);
       font-weight: 600;
+    }
+
+    .event-status.upcoming {
+      color: var(--color-green);
+    }
+
+    .event-status.completed {
+      color: var(--color-blue);
+    }
+
+    .event-status.cancelled {
+      color: #ef4444;
     }
 
     .event-date-badge {

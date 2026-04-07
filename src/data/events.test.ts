@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   events,
   getEventById,
   getUpcomingEvents,
   getEventsByCategory,
+  getHomepageEvents,
   type Event,
 } from "./events";
 
@@ -145,5 +146,66 @@ describe("getEventsByCategory", () => {
     seedEvents(upcoming1);
     const result = getEventsByCategory();
     expect(result["Category A"][0]).toEqual(upcoming1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getHomepageEvents
+// ---------------------------------------------------------------------------
+
+describe("getHomepageEvents", () => {
+  it("splits events into upcoming and passed or cancelled sections", () => {
+    seedEvents(upcoming1, completed, cancelled);
+    const result = getHomepageEvents();
+
+    expect(Object.keys(result.upcoming)).toEqual(["Category A"]);
+    expect(result.upcoming["Category A"][0].id).toBe("test-upcoming-1");
+    expect(Object.keys(result.passedOrCancelled)).toEqual(["Category A"]);
+    expect(result.passedOrCancelled["Category A"].map((event) => event.id)).toEqual([
+      "test-completed",
+      "test-cancelled",
+    ]);
+  });
+
+  it("sorts upcoming and passed/cancelled events by datetime ascending", () => {
+    seedEvents(cancelled, upcoming2, completed, upcoming1);
+    const result = getHomepageEvents();
+
+    expect(result.upcoming["Category A"][0].id).toBe("test-upcoming-1");
+    expect(result.upcoming["Category B"][0].id).toBe("test-upcoming-2");
+    expect(result.passedOrCancelled["Category A"].map((event) => event.id)).toEqual([
+      "test-completed",
+      "test-cancelled",
+    ]);
+  });
+
+  it("preserves category grouping inside each section", () => {
+    seedEvents(upcoming2, upcoming1, completed);
+    const result = getHomepageEvents();
+
+    expect(Object.keys(result.upcoming)).toEqual(
+      expect.arrayContaining(["Category A", "Category B"]),
+    );
+    expect(result.upcoming["Category A"][0]).toEqual(upcoming1);
+    expect(result.upcoming["Category B"][0]).toEqual(upcoming2);
+    expect(result.passedOrCancelled["Category A"][0]).toEqual(completed);
+  });
+
+  it("returns empty sections when there are no events", () => {
+    seedEvents();
+    expect(getHomepageEvents()).toEqual({
+      upcoming: {},
+      passedOrCancelled: {},
+    });
+  });
+
+  it("returns an empty upcoming section when only past or cancelled events exist", () => {
+    seedEvents(completed, cancelled);
+    expect(getHomepageEvents()).toEqual({
+      upcoming: {},
+      passedOrCancelled: {
+        "Category A": [completed, cancelled],
+      },
+    });
   });
 });
