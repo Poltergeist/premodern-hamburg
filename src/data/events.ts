@@ -57,7 +57,7 @@ Proxies sind erlaubt. Bitte nur Original Layout, Print (Farbe), Text (Deutsch od
     format: "PreModern",
     entryFee: "5€",
     prizes: "Premodern Staples",
-    registrationLink: "",
+    registrationLink: "https://topdeck.gg/event/untap-altona-premodern-weekly-0804",
     status: "upcoming",
   },
 ];
