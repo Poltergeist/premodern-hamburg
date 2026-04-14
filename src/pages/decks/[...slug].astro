@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getAllDecklists, type DecklistCard } from '../../data/events';
+
+export async function getStaticPaths() {
+  const allDecklists = getAllDecklists();
+  return allDecklists.map(({ eventId, index, decklist, event }) => ({
+    params: { slug: `${eventId}/${index}` },
+    props: { eventId, index, decklist, event },
+  }));
+}
+
+const { eventId, decklist, event } = Astro.props;
+
+const mainboard = (decklist.cards ?? [])
+  .filter((c: DecklistCard) => c.board === "main")
+  .sort((a: DecklistCard, b: DecklistCard) => a.name.localeCompare(b.name));
+const sideboard = (decklist.cards ?? [])
+  .filter((c: DecklistCard) => c.board === "side")
+  .sort((a: DecklistCard, b: DecklistCard) => a.name.localeCompare(b.name));
+
+const mainCount = mainboard.reduce((sum: number, c: DecklistCard) => sum + c.quantity, 0);
+const sideCount = sideboard.reduce((sum: number, c: DecklistCard) => sum + c.quantity, 0);
+
+const platform = decklist.url.includes('moxfield.com') ? 'Moxfield' : 'Archidekt';
+const pageTitle = decklist.rank
+  ? `#${decklist.rank} ${decklist.player} — Decklist`
+  : `${decklist.player} — Decklist`;
+
+function cardImageUrl(card: DecklistCard): string {
+  return card.imageUrl ?? `https://api.scryfall.com/cards/named?format=image&version=normal&exact=${encodeURIComponent(card.name)}`;
+}
+---
+
+<BaseLayout title={pageTitle}>
+  <div class="decklist-detail">
+    <div class="breadcrumb">
+      <a href={`${import.meta.env.BASE_URL}events/${eventId}`}>← Zurück zum Event</a>
+    </div>
+
+    <div class="card decklist-header">
+      <div class="player-info">
+        {decklist.rank && <span class="rank-badge">#{decklist.rank}</span>}
+        <h1>{decklist.player}</h1>
+      </div>
+      {event && <p class="event-name">{event.name}</p>}
+      <a href={decklist.url} target="_blank" rel="noopener" class="external-link">
+        Auf {platform} ansehen →
+      </a>
+    </div>
+
+    <div class="deck-content">
+      <div class="card board-section">
+        <h2>Mainboard ({mainCount} Karten)</h2>
+        <div class="card-grid">
+          {mainboard.map((c: DecklistCard) => (
+            <div class="card-tile">
+              {c.quantity > 1 && <span class="qty-badge">{c.quantity}x</span>}
+              <img
+                src={cardImageUrl(c)}
+                alt={c.name}
+                loading="lazy"
+                width="244"
+                height="340"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {sideboard.length > 0 && (
+        <div class="card board-section">
+          <h2>Sideboard ({sideCount} Karten)</h2>
+          <div class="card-grid">
+            {sideboard.map((c: DecklistCard) => (
+              <div class="card-tile">
+                {c.quantity > 1 && <span class="qty-badge">{c.quantity}x</span>}
+                <img
+                  src={cardImageUrl(c)}
+                  alt={c.name}
+                  loading="lazy"
+                  width="244"
+                  height="340"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <style>
+    .decklist-detail {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .breadcrumb {
+      margin-bottom: 2rem;
+    }
+
+    .breadcrumb a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--color-blue);
+    }
+
+    .decklist-header {
+      margin-bottom: 2rem;
+      padding: 2rem;
+    }
+
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.5rem;
+      height: 2.5rem;
+      padding: 0 0.75rem;
+      border-radius: 8px;
+      background: var(--gradient-magic);
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .player-info h1 {
+      background: var(--gradient-magic);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .event-name {
+      color: var(--color-text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .external-link {
+      color: var(--color-blue);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .external-link:hover {
+      text-decoration: underline;
+    }
+
+    .deck-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .board-section {
+      padding: 1.5rem;
+    }
+
+    .board-section h2 {
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      color: var(--color-text);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 768px) {
+      .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+    }
+
+    .card-tile {
+      position: relative;
+    }
+
+    .card-tile img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      display: block;
+      transition: transform 0.2s;
+    }
+
+    .card-tile:hover img {
+      transform: scale(1.05);
+    }
+
+    .qty-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      z-index: 1;
+      border: 1px solid var(--color-border);
+    }
+  </style>
+</BaseLayout>

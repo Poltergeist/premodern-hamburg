@@ -25,10 +25,18 @@ export interface EventsByStatusAndCategory {
   passedOrCancelled: Record<string, Event[]>;
 }
 
+export interface DecklistCard {
+  name: string;
+  quantity: number;
+  board: "main" | "side";
+  imageUrl?: string;
+}
+
 export interface Decklist {
   player: string;
   url: string;
   rank?: number;
+  cards?: DecklistCard[];
 }
 
 export const events: Event[] = eventsData as Event[];
@@ -36,6 +44,19 @@ const decklists: Record<string, Decklist[]> = decklistsData as Record<string, De
 
 export function getDecklistsForEvent(eventId: string): Decklist[] {
   return decklists[eventId] ?? [];
+}
+
+export function getAllDecklists(): { eventId: string; index: number; decklist: Decklist; event?: Event }[] {
+  const result: { eventId: string; index: number; decklist: Decklist; event?: Event }[] = [];
+  for (const [eventId, entries] of Object.entries(decklists)) {
+    const event = events.find((e) => e.id === eventId);
+    entries.forEach((decklist, index) => {
+      if (decklist.cards && decklist.cards.length > 0) {
+        result.push({ eventId, index, decklist, event });
+      }
+    });
+  }
+  return result;
 }
 
 export function getEventById(id: string): Event | undefined {
