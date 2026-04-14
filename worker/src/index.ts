@@ -7,6 +7,7 @@ export interface Env {
   GOOGLE_PRIVATE_KEY?: string;
   GOOGLE_SHEET_ID?: string;
   ALLOWED_ORIGIN: string;
+  GITHUB_REPO?: string;
 }
 
 interface SubmitBody {
@@ -79,6 +80,12 @@ async function handleSubmit(
     );
   }
 
+  // Validate event has started
+  const eventDatetime = await getEventDatetime(eventId, env);
+  if (eventDatetime && new Date(eventDatetime) > new Date()) {
+    return json({ error: "Event has not started yet" }, 400, origin);
+  }
+
   // Validate captcha
   const expectedName = await env.CAPTCHA_KV.get(challengeId);
   if (!expectedName) {
@@ -120,6 +127,24 @@ async function handleSubmit(
   }
 
   return json({ success: true }, 200, origin);
+}
+
+async function getEventDatetime(eventId: string, env: Env): Promise<string | null> {
+  const repo = env.GITHUB_REPO || "Poltergeist/premodern-hamburg";
+  const url = `https://raw.githubusercontent.com/${repo}/main/src/data/events.json`;
+
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "PreModernHamburg/1.0" },
+    });
+    if (!res.ok) return null;
+
+    const events: { id: string; datetime: string }[] = await res.json();
+    const event = events.find((e) => e.id === eventId);
+    return event?.datetime ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export default {

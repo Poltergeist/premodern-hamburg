@@ -84,8 +84,8 @@ const WORKER_URL = import.meta.env.DEV
             </div>
           </div>
         </div>
-        {event.status === 'completed' && (
-        <div class="card" id="decklists-section">
+        {event.status !== 'cancelled' && (
+        <div class="card" id="decklists-section" style={event.status === 'upcoming' ? 'display: none;' : ''} data-event-datetime={event.datetime}>
           <h2>📋 Decklisten</h2>
 
           {decklists.length > 0 ? (
@@ -545,6 +545,15 @@ const WORKER_URL = import.meta.env.DEV
   </style>
 
   <script is:inline define:vars={{ WORKER_URL, eventId: event.id }}>
+    // Show decklists section for upcoming events once the event has started
+    const decklistsSection = document.getElementById("decklists-section");
+    if (decklistsSection && decklistsSection.style.display === "none") {
+      const eventDatetime = new Date(decklistsSection.dataset.eventDatetime);
+      if (new Date() >= eventDatetime) {
+        decklistsSection.style.display = "";
+      }
+    }
+
     const toggleBtn = document.getElementById("toggle-form-btn");
     const form = document.getElementById("decklist-form");
     const captchaLoading = document.getElementById("captcha-loading");
