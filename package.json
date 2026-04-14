@@ -9,7 +9,8 @@
     "astro": "astro",
     "test": "vitest run",
     "test:watch": "vitest",
-    "sync": "tsx scripts/sync-events.ts"
+    "sync": "tsx scripts/sync-events.ts",
+    "sync:decklists": "tsx scripts/sync-decklists.ts"
   },
   "engines": {
     "node": ">=24"

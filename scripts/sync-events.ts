@@ -287,7 +287,10 @@ async function main() {
   );
 }
 
-main().catch((err) => {
-  console.error("Sync failed:", err);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1]?.includes("sync-events");
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error("Sync failed:", err);
+    process.exit(1);
+  });
+}

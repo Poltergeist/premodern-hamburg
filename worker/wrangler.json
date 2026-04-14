@@ -1,0 +1,16 @@
+{
+  "name": "premodern-decklist-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-14",
+  "kv_namespaces": [
+    {
+      "binding": "CAPTCHA_KV",
+      "id": "5ad4f18c48c249dc8fe938b354bacb23"
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGIN": "https://premodern-hamburg.eu",
+    "GOOGLE_SHEET_ID": "1IpaESeKSulKyddOh7baMAzmSnY02CCkisQDCgMn8cg8",
+    "GOOGLE_SERVICE_ACCOUNT_EMAIL": "decklist-service-account@premodern-hamburg.iam.gserviceaccount.com"
+  }
+}
