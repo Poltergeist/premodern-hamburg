@@ -95,13 +95,18 @@ async function handleSubmit(
   // Persist decklist to Google Sheets
   const timestamp = new Date().toISOString();
   if (env.GOOGLE_SERVICE_ACCOUNT_EMAIL && env.GOOGLE_PRIVATE_KEY && env.GOOGLE_SHEET_ID) {
-    const result = await appendToSheet(
-      env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      env.GOOGLE_PRIVATE_KEY,
-      env.GOOGLE_SHEET_ID,
-      [timestamp, eventId, player, deckUrl, rank ? String(rank) : ""],
-    );
-    if (!result.ok) {
+    try {
+      const result = await appendToSheet(
+        env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        env.GOOGLE_PRIVATE_KEY,
+        env.GOOGLE_SHEET_ID,
+        [timestamp, eventId, player, deckUrl, rank ? String(rank) : ""],
+      );
+      if (!result.ok) {
+        return json({ error: "Failed to save decklist" }, 500, origin);
+      }
+    } catch (err) {
+      console.error("Google Sheets error:", err);
       return json({ error: "Failed to save decklist" }, 500, origin);
     }
   } else {
