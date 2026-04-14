@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getEventById, events } from '../../data/events';
+import { getEventById, getDecklistsForEvent, events } from '../../data/events';
 
 export async function getStaticPaths() {
   return events.map(event => ({
@@ -14,6 +14,11 @@ const event = getEventById(id);
 if (!event) {
   return Astro.redirect('/404');
 }
+
+const decklists = getDecklistsForEvent(event.id);
+const WORKER_URL = import.meta.env.DEV
+  ? "http://localhost:8787"
+  : "https://premodern-decklist-api.premodern-hamburg.workers.dev";
 ---
 
 <BaseLayout title={event.name}>
@@ -79,6 +84,73 @@ if (!event) {
             </div>
           </div>
         </div>
+        {event.status === 'completed' && (
+        <div class="card" id="decklists-section">
+          <h2>📋 Decklisten</h2>
+
+          {decklists.length > 0 ? (
+            <ul class="decklist-list">
+              {decklists.map((d) => (
+                <li class="decklist-entry">
+                  <span class="decklist-player">
+                    {d.rank ? `#${d.rank} — ` : ''}{d.player}
+                  </span>
+                  <a href={d.url} target="_blank" rel="noopener" class="decklist-link">
+                    {d.url.includes('moxfield.com') ? 'Moxfield' : 'Archidekt'} →
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="no-decklists">Noch keine Decklisten eingereicht.</p>
+          )}
+
+          <button id="toggle-form-btn" class="btn" style="margin-top: 1.5rem;">
+            Decklist einreichen
+          </button>
+
+          <div id="decklist-form" class="decklist-form" style="display: none;">
+            <div class="form-group">
+              <label for="player-name">Spielername</label>
+              <input type="text" id="player-name" placeholder="Dein Name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="player-rank">Platzierung (optional)</label>
+              <input type="number" id="player-rank" min="1" placeholder="z.B. 1" />
+            </div>
+
+            <div class="form-group">
+              <label for="deck-url">Deck URL</label>
+              <input
+                type="url"
+                id="deck-url"
+                placeholder="https://www.moxfield.com/decks/..."
+                required
+              />
+              <span class="form-hint">Moxfield oder Archidekt Link</span>
+            </div>
+
+            <div id="captcha-section" class="form-group">
+              <label>Wie heißt diese Karte?</label>
+              <div id="captcha-loading" class="captcha-loading">Karte wird geladen...</div>
+              <img id="captcha-image" class="captcha-image" style="display: none;" alt="Premodern card" />
+              <button id="refresh-captcha" class="captcha-refresh" style="display: none;" type="button">
+                Andere Karte
+              </button>
+              <input type="text" id="card-name" placeholder="Kartenname eingeben" required />
+            </div>
+
+            <button id="submit-decklist" class="btn" style="width: 100%;">
+              Absenden
+            </button>
+
+          </div>
+
+          <div id="form-status" class="form-status" style="display: none;"></div>
+        </div>
+        )}
+
       </div>
 
       <div class="sidebar">
@@ -345,5 +417,238 @@ if (!event) {
       color: var(--color-green);
       font-weight: bold;
     }
+
+    /* Decklists */
+    .decklist-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .decklist-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--color-medium-gray);
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+
+    .decklist-player {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .decklist-link {
+      color: var(--color-blue);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .decklist-link:hover {
+      text-decoration: underline;
+    }
+
+    .no-decklists {
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* Decklist form */
+    .decklist-form {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: var(--color-text);
+      font-size: 0.95rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="url"],
+    .form-group input[type="number"] {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+      background: var(--color-medium-gray);
+      color: var(--color-text);
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--color-blue);
+    }
+
+    .form-hint {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .captcha-loading {
+      color: var(--color-text-muted);
+      font-style: italic;
+      padding: 1rem 0;
+    }
+
+    .captcha-image {
+      max-width: 300px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+    }
+
+    .captcha-refresh {
+      background: none;
+      border: none;
+      color: var(--color-blue);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0.25rem 0;
+      text-align: left;
+    }
+
+    .captcha-refresh:hover {
+      text-decoration: underline;
+    }
+
+    .form-status {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .form-status.success {
+      background: rgba(63, 185, 80, 0.1);
+      color: var(--color-green);
+      border: 1px solid var(--color-green);
+    }
+
+    .form-status.error {
+      background: rgba(248, 81, 73, 0.1);
+      color: var(--color-red);
+      border: 1px solid var(--color-red);
+    }
   </style>
+
+  <script is:inline define:vars={{ WORKER_URL, eventId: event.id }}>
+    const toggleBtn = document.getElementById("toggle-form-btn");
+    const form = document.getElementById("decklist-form");
+    const captchaLoading = document.getElementById("captcha-loading");
+    const captchaImage = document.getElementById("captcha-image");
+    const refreshCaptcha = document.getElementById("refresh-captcha");
+    const submitBtn = document.getElementById("submit-decklist");
+    const statusEl = document.getElementById("form-status");
+
+    let challengeId = null;
+    const playerInput = document.getElementById("player-name");
+    const savedName = localStorage.getItem("premodern-player-name");
+    if (savedName && playerInput) playerInput.value = savedName;
+
+    if (toggleBtn && form) {
+      toggleBtn.addEventListener("click", () => {
+        const isHidden = form.style.display === "none";
+        form.style.display = isHidden ? "flex" : "none";
+        toggleBtn.textContent = isHidden ? "Abbrechen" : "Decklist einreichen";
+        if (isHidden) loadChallenge();
+      });
+    }
+
+    async function loadChallenge() {
+      captchaLoading.style.display = "block";
+      captchaImage.style.display = "none";
+      refreshCaptcha.style.display = "none";
+      challengeId = null;
+
+      try {
+        const res = await fetch(WORKER_URL + "/challenge");
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        challengeId = data.challengeId;
+        captchaImage.src = data.imageUrl;
+        captchaImage.style.display = "block";
+        refreshCaptcha.style.display = "inline";
+        captchaLoading.style.display = "none";
+      } catch (err) {
+        captchaLoading.textContent = "Fehler beim Laden der Karte. Bitte erneut versuchen.";
+      }
+    }
+
+    if (refreshCaptcha) {
+      refreshCaptcha.addEventListener("click", loadChallenge);
+    }
+
+    if (submitBtn) {
+      submitBtn.addEventListener("click", async () => {
+        const player = document.getElementById("player-name").value.trim();
+        const rankVal = document.getElementById("player-rank").value;
+        const rank = rankVal ? parseInt(rankVal, 10) : undefined;
+        const deckUrl = document.getElementById("deck-url").value.trim();
+        const cardName = document.getElementById("card-name").value.trim();
+
+        if (!player || !deckUrl || !cardName || !challengeId) {
+          showStatus("Bitte alle Felder ausfüllen.", "error");
+          return;
+        }
+
+        const urlPattern = /^https:\/\/(www\.)?(moxfield\.com\/decks\/|archidekt\.com\/decks\/)/;
+        if (!urlPattern.test(deckUrl)) {
+          showStatus("Bitte einen gültigen Moxfield oder Archidekt Link eingeben.", "error");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Wird gesendet...";
+
+        try {
+          const res = await fetch(WORKER_URL + "/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ challengeId, cardName, eventId, player, deckUrl, rank }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            localStorage.setItem("premodern-player-name", player);
+            document.getElementById("player-rank").value = "";
+            document.getElementById("deck-url").value = "";
+            document.getElementById("card-name").value = "";
+            form.style.display = "none";
+            toggleBtn.textContent = "Decklist einreichen";
+            showStatus("Decklist erfolgreich eingereicht! Sie wird nach einer kurzen Prüfung hier angezeigt.", "success");
+          } else {
+            showStatus(data.error || "Fehler beim Senden.", "error");
+            if (data.error && data.error.includes("card name")) {
+              loadChallenge();
+            }
+          }
+        } catch {
+          showStatus("Netzwerkfehler. Bitte erneut versuchen.", "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Absenden";
+        }
+      });
+    }
+
+    function showStatus(msg, type) {
+      statusEl.textContent = msg;
+      statusEl.className = "form-status " + type;
+      statusEl.style.display = "block";
+    }
+  </script>
 </BaseLayout>
