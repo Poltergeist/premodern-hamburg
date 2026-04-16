@@ -65,7 +65,7 @@ export function getHomepageEvents(): EventsByStatusAndCategory {
   const upcoming = sortEventsByDatetime(
     events.filter((event) => event.status === "upcoming"),
   );
-  const passedOrCancelled = sortEventsByDatetime(
+  const passedOrCancelled = sortEventsByDatetimeDesc(
     events.filter((event) => event.status !== "upcoming"),
   );
 
@@ -78,6 +78,12 @@ export function getHomepageEvents(): EventsByStatusAndCategory {
 function sortEventsByDatetime(eventsToSort: Event[]): Event[] {
   return [...eventsToSort].sort(
     (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime(),
+  );
+}
+
+function sortEventsByDatetimeDesc(eventsToSort: Event[]): Event[] {
+  return [...eventsToSort].sort(
+    (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime(),
   );
 }
 

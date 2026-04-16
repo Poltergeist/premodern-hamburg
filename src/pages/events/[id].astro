@@ -64,26 +64,6 @@ const WORKER_URL = import.meta.env.DEV
 
     <div class="content-grid">
       <div class="main-content">
-        <div class="card">
-          <h2>📝 Über das Event</h2>
-          <p class="description">{event.description}</p>
-        </div>
-
-        <div class="card">
-          <h2>🎮 Format & Regeln</h2>
-          <div class="format-info">
-            <div class="info-item">
-              <span class="info-label">Format:</span>
-              <span class="info-value">{event.format}</span>
-            </div>
-            <div class="format-description">
-              <p>
-                PreModern ist ein Eternal-Format für Magic: The Gathering, das Karten von 1995 bis 2003 umfasst 
-                (4th Edition bis Scourge). Erlebe die Nostalgie klassischer Magic-Karten ohne die Power 9!
-              </p>
-            </div>
-          </div>
-        </div>
         {event.status !== 'cancelled' && (
         <div class="card" id="decklists-section" style={event.status === 'upcoming' ? 'display: none;' : ''} data-event-datetime={event.datetime}>
           <h2>📋 Decklisten</h2>
@@ -150,6 +130,27 @@ const WORKER_URL = import.meta.env.DEV
           <div id="form-status" class="form-status" style="display: none;"></div>
         </div>
         )}
+
+        <div class="card">
+          <h2>📝 Über das Event</h2>
+          <p class="description">{event.description}</p>
+        </div>
+
+        <div class="card">
+          <h2>🎮 Format & Regeln</h2>
+          <div class="format-info">
+            <div class="info-item">
+              <span class="info-label">Format:</span>
+              <span class="info-value">{event.format}</span>
+            </div>
+            <div class="format-description">
+              <p>
+                PreModern ist ein Eternal-Format für Magic: The Gathering, das Karten von 1995 bis 2003 umfasst
+                (4th Edition bis Scourge). Erlebe die Nostalgie klassischer Magic-Karten ohne die Power 9!
+              </p>
+            </div>
+          </div>
+        </div>
 
       </div>
 
