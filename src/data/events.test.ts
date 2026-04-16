@@ -162,20 +162,20 @@ describe("getHomepageEvents", () => {
     expect(result.upcoming["Category A"][0].id).toBe("test-upcoming-1");
     expect(Object.keys(result.passedOrCancelled)).toEqual(["Category A"]);
     expect(result.passedOrCancelled["Category A"].map((event) => event.id)).toEqual([
-      "test-completed",
       "test-cancelled",
+      "test-completed",
     ]);
   });
 
-  it("sorts upcoming and passed/cancelled events by datetime ascending", () => {
+  it("sorts upcoming events by datetime ascending and passed/cancelled descending", () => {
     seedEvents(cancelled, upcoming2, completed, upcoming1);
     const result = getHomepageEvents();
 
     expect(result.upcoming["Category A"][0].id).toBe("test-upcoming-1");
     expect(result.upcoming["Category B"][0].id).toBe("test-upcoming-2");
     expect(result.passedOrCancelled["Category A"].map((event) => event.id)).toEqual([
-      "test-completed",
       "test-cancelled",
+      "test-completed",
     ]);
   });
 
@@ -204,7 +204,7 @@ describe("getHomepageEvents", () => {
     expect(getHomepageEvents()).toEqual({
       upcoming: {},
       passedOrCancelled: {
-        "Category A": [completed, cancelled],
+        "Category A": [cancelled, completed],
       },
     });
   });
