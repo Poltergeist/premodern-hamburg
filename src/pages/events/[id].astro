@@ -18,7 +18,7 @@ if (!event) {
 const decklists = getDecklistsForEvent(event.id);
 const standings = getStandingsForEvent(event.id);
 const WORKER_URL = import.meta.env.DEV
-  ? "http://localhost:8788"
+  ? "http://localhost:8787"
   : "https://premodern-decklist-api.premodern-hamburg.workers.dev";
 const GOOGLE_CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID || "";
 ---
@@ -188,25 +188,23 @@ const GOOGLE_CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID || "";
             <p class="no-standings">Noch keine Standings vorhanden.</p>
           )}
 
-          {standings.length === 0 && (
-            <>
-              <button id="admin-signin" class="admin-link" style="margin-top: 1.5rem;">
-                Standings hochladen
+          <>
+            <button id="admin-signin" class="admin-link" style="margin-top: 1.5rem;">
+              Standings hochladen
+            </button>
+
+            <div id="admin-upload" style="display: none; margin-top: 1.5rem;">
+              <label class="file-input-wrapper">
+                <span class="file-input-label" id="file-label">CSV-Datei auswählen...</span>
+                <input type="file" id="standings-csv" accept=".csv" class="file-input-hidden" />
+              </label>
+              <button id="upload-standings" class="btn" style="width: 100%; margin-top: 0.75rem;">
+                Hochladen
               </button>
+            </div>
 
-              <div id="admin-upload" style="display: none; margin-top: 1.5rem;">
-                <label class="file-input-wrapper">
-                  <span class="file-input-label" id="file-label">CSV-Datei auswählen...</span>
-                  <input type="file" id="standings-csv" accept=".csv" class="file-input-hidden" />
-                </label>
-                <button id="upload-standings" class="btn" style="width: 100%; margin-top: 0.75rem;">
-                  Hochladen
-                </button>
-              </div>
-
-              <div id="standings-status" class="form-status" style="display: none;"></div>
-            </>
-          )}
+            <div id="standings-status" class="form-status" style="display: none;"></div>
+          </>
         </div>
         )}
 
