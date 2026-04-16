@@ -20,7 +20,7 @@ interface SubmitBody {
 }
 
 const SCRYFALL_RANDOM = "https://api.scryfall.com/cards/random?q=legal%3Apremodern+year%3C%3D2003+year%3E%3D1995";
-const DECK_URL_PATTERN = /^https:\/\/(www\.)?(moxfield\.com\/decks\/|archidekt\.com\/decks\/)/;
+const DECK_URL_PATTERN = /^https:\/\/(www\.)?(moxfield\.com\/decks\/|archidekt\.com\/decks\/|mtggoldfish\.com\/deck\/)/;
 
 function corsHeaders(origin: string): Record<string, string> {
   return {
@@ -74,7 +74,7 @@ async function handleSubmit(
   // Validate deck URL
   if (!DECK_URL_PATTERN.test(deckUrl)) {
     return json(
-      { error: "Deck URL must be from moxfield.com or archidekt.com" },
+      { error: "Deck URL must be from moxfield.com, archidekt.com, or mtggoldfish.com" },
       400,
       origin,
     );

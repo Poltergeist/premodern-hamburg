@@ -78,7 +78,7 @@ describe("fuzzyMatch", () => {
 // ---------------------------------------------------------------------------
 
 describe("deck URL validation", () => {
-  const DECK_URL_PATTERN = /^https:\/\/(www\.)?(moxfield\.com\/decks\/|archidekt\.com\/decks\/)/;
+  const DECK_URL_PATTERN = /^https:\/\/(www\.)?(moxfield\.com\/decks\/|archidekt\.com\/decks\/|mtggoldfish\.com\/deck\/)/;
 
   it("accepts moxfield URLs", () => {
     expect(DECK_URL_PATTERN.test("https://www.moxfield.com/decks/abc123")).toBe(true);
@@ -88,6 +88,11 @@ describe("deck URL validation", () => {
   it("accepts archidekt URLs", () => {
     expect(DECK_URL_PATTERN.test("https://archidekt.com/decks/123456")).toBe(true);
     expect(DECK_URL_PATTERN.test("https://www.archidekt.com/decks/123456")).toBe(true);
+  });
+
+  it("accepts mtggoldfish URLs", () => {
+    expect(DECK_URL_PATTERN.test("https://www.mtggoldfish.com/deck/123456")).toBe(true);
+    expect(DECK_URL_PATTERN.test("https://mtggoldfish.com/deck/123456")).toBe(true);
   });
 
   it("rejects other URLs", () => {

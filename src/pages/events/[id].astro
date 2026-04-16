@@ -96,7 +96,7 @@ const WORKER_URL = import.meta.env.DEV
                     {d.rank ? `#${d.rank} — ` : ''}{d.player}
                   </span>
                   <a href={d.url} target="_blank" rel="noopener" class="decklist-link">
-                    {d.url.includes('moxfield.com') ? 'Moxfield' : 'Archidekt'} →
+                    {d.url.includes('moxfield.com') ? 'Moxfield' : d.url.includes('archidekt.com') ? 'Archidekt' : 'MTGGoldfish'} →
                   </a>
                 </li>
               ))}
@@ -128,7 +128,7 @@ const WORKER_URL = import.meta.env.DEV
                 placeholder="https://www.moxfield.com/decks/..."
                 required
               />
-              <span class="form-hint">Moxfield oder Archidekt Link</span>
+              <span class="form-hint">Moxfield, Archidekt oder MTGGoldfish Link</span>
             </div>
 
             <div id="captcha-section" class="form-group">
@@ -614,9 +614,9 @@ const WORKER_URL = import.meta.env.DEV
           return;
         }
 
-        const urlPattern = /^https:\/\/(www\.)?(moxfield\.com\/decks\/|archidekt\.com\/decks\/)/;
+        const urlPattern = /^https:\/\/(www\.)?(moxfield\.com\/decks\/|archidekt\.com\/decks\/|mtggoldfish\.com\/deck\/)/;
         if (!urlPattern.test(deckUrl)) {
-          showStatus("Bitte einen gültigen Moxfield oder Archidekt Link eingeben.", "error");
+          showStatus("Bitte einen gültigen Moxfield, Archidekt oder MTGGoldfish Link eingeben.", "error");
           return;
         }
 
