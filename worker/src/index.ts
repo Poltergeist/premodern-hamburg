@@ -1,5 +1,6 @@
 import { fuzzyMatch } from "./levenshtein";
-import { appendToSheet } from "./google-sheets";
+import { appendToSheet, appendStandingsToSheet } from "./google-sheets";
+import { verifyGoogleIdToken } from "./google-auth";
 
 export interface Env {
   CAPTCHA_KV: KVNamespace;
@@ -8,6 +9,8 @@ export interface Env {
   GOOGLE_SHEET_ID?: string;
   ALLOWED_ORIGIN: string;
   GITHUB_REPO?: string;
+  GOOGLE_OAUTH_CLIENT_ID?: string;
+  ALLOWED_UPLOADER_EMAILS?: string;
 }
 
 interface SubmitBody {
@@ -26,7 +29,7 @@ function corsHeaders(origin: string): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 }
 
@@ -129,6 +132,147 @@ async function handleSubmit(
   return json({ success: true }, 200, origin);
 }
 
+function parseCsv(text: string): string[][] {
+  const lines = text.trim().split(/\r?\n/);
+  return lines.map((line) => {
+    const values: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQuotes) {
+        if (ch === '"' && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else if (ch === '"') {
+          inQuotes = false;
+        } else {
+          current += ch;
+        }
+      } else if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ",") {
+        values.push(current);
+        current = "";
+      } else {
+        current += ch;
+      }
+    }
+    values.push(current);
+    return values;
+  });
+}
+
+async function handleStandingsUpload(
+  request: Request,
+  env: Env,
+  origin: string,
+): Promise<Response> {
+  // Verify auth configuration
+  if (!env.GOOGLE_OAUTH_CLIENT_ID || !env.ALLOWED_UPLOADER_EMAILS) {
+    return json({ error: "Standings upload not configured" }, 500, origin);
+  }
+
+  // Extract and verify token
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return json({ error: "Missing authorization token" }, 401, origin);
+  }
+
+  let email: string;
+  try {
+    const result = await verifyGoogleIdToken(
+      authHeader.slice(7),
+      env.GOOGLE_OAUTH_CLIENT_ID,
+    );
+    email = result.email.toLowerCase();
+  } catch (err) {
+    console.error("Token verification failed:", err);
+    return json({ error: "Invalid authorization token" }, 401, origin);
+  }
+
+  // Check allowlist
+  const allowed = env.ALLOWED_UPLOADER_EMAILS.split(",").map((e) => e.trim().toLowerCase());
+  if (!allowed.includes(email)) {
+    return json({ error: "Nicht autorisiert" }, 403, origin);
+  }
+
+  // Parse form data
+  const formData = await request.formData();
+  const eventId = formData.get("eventId") as string | null;
+  const file = formData.get("file") as File | null;
+
+  if (!eventId || !file) {
+    return json({ error: "Missing eventId or file" }, 400, origin);
+  }
+
+  // Validate event exists
+  const eventDatetime = await getEventDatetime(eventId, env);
+  if (!eventDatetime) {
+    return json({ error: "Event not found" }, 400, origin);
+  }
+
+  // Parse CSV
+  const csvText = await file.text();
+  const rows = parseCsv(csvText);
+  if (rows.length < 2) {
+    return json({ error: "CSV must have a header row and at least one data row" }, 400, origin);
+  }
+
+  const header = rows[0].map((h) => h.trim().toLowerCase());
+  const requiredColumns = ["rank", "player", "pts"];
+  for (const col of requiredColumns) {
+    if (!header.includes(col)) {
+      return json({ error: `Missing required CSV column: ${col}` }, 400, origin);
+    }
+  }
+
+  const colIndex = Object.fromEntries(header.map((h, i) => [h, i]));
+  const timestamp = new Date().toISOString();
+  const sheetRows: string[][] = [];
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (row.length < header.length) continue;
+    sheetRows.push([
+      timestamp,
+      eventId,
+      row[colIndex["rank"]] ?? "",
+      row[colIndex["player"]] ?? "",
+      row[colIndex["pts"]] ?? "",
+      row[colIndex["ow%"]] ?? "",
+      row[colIndex["gw%"]] ?? "",
+      row[colIndex["ogw%"]] ?? "",
+    ]);
+  }
+
+  if (sheetRows.length === 0) {
+    return json({ error: "No valid data rows in CSV" }, 400, origin);
+  }
+
+  // Write to Google Sheets
+  if (env.GOOGLE_SERVICE_ACCOUNT_EMAIL && env.GOOGLE_PRIVATE_KEY && env.GOOGLE_SHEET_ID) {
+    try {
+      const result = await appendStandingsToSheet(
+        env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        env.GOOGLE_PRIVATE_KEY,
+        env.GOOGLE_SHEET_ID,
+        sheetRows,
+      );
+      if (!result.ok) {
+        return json({ error: "Failed to save standings" }, 500, origin);
+      }
+    } catch (err) {
+      console.error("Google Sheets error:", err);
+      return json({ error: "Failed to save standings" }, 500, origin);
+    }
+  } else {
+    console.log("Google Sheets not configured, skipping persistence:", { eventId, rowCount: sheetRows.length });
+  }
+
+  return json({ success: true, rowCount: sheetRows.length }, 200, origin);
+}
+
 async function getEventDatetime(eventId: string, env: Env): Promise<string | null> {
   const repo = env.GITHUB_REPO || "Poltergeist/premodern-hamburg";
   const url = `https://raw.githubusercontent.com/${repo}/main/src/data/events.json`;
@@ -165,6 +309,10 @@ export default {
 
     if (url.pathname === "/submit" && request.method === "POST") {
       return handleSubmit(request, env, origin);
+    }
+
+    if (url.pathname === "/standings" && request.method === "POST") {
+      return handleStandingsUpload(request, env, origin);
     }
 
     return json({ error: "Not found" }, 404, origin);

@@ -70,6 +70,32 @@ async function getAccessToken(email: string, privateKeyPem: string): Promise<str
   return data.access_token;
 }
 
+export async function appendStandingsToSheet(
+  email: string,
+  privateKeyPem: string,
+  sheetId: string,
+  rows: string[][],
+): Promise<{ ok: boolean }> {
+  const token = await getAccessToken(email, privateKeyPem);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/standings!A:H:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ values: rows }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Sheets API error:", res.status, text);
+  }
+
+  return { ok: res.ok };
+}
+
 export async function appendToSheet(
   email: string,
   privateKeyPem: string,
@@ -77,7 +103,7 @@ export async function appendToSheet(
   row: string[],
 ): Promise<{ ok: boolean }> {
   const token = await getAccessToken(email, privateKeyPem);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A:E:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/decklists!A:E:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
 
   const res = await fetch(url, {
     method: "POST",

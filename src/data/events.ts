@@ -1,5 +1,6 @@
 import eventsData from "./events.json";
 import decklistsData from "./decklists.json";
+import standingsData from "./standings.json";
 
 export interface Event {
   id: string;
@@ -31,11 +32,25 @@ export interface Decklist {
   rank?: number;
 }
 
+export interface StandingsEntry {
+  rank: number;
+  player: string;
+  points: number;
+  owp: string;
+  gwp: string;
+  ogwp: string;
+}
+
 export const events: Event[] = eventsData as Event[];
 const decklists: Record<string, Decklist[]> = decklistsData as Record<string, Decklist[]>;
+const standings: Record<string, StandingsEntry[]> = standingsData as Record<string, StandingsEntry[]>;
 
 export function getDecklistsForEvent(eventId: string): Decklist[] {
   return decklists[eventId] ?? [];
+}
+
+export function getStandingsForEvent(eventId: string): StandingsEntry[] {
+  return standings[eventId] ?? [];
 }
 
 export function getEventById(id: string): Event | undefined {

@@ -12,6 +12,8 @@
     "ALLOWED_ORIGIN": "https://premodern-hamburg.eu",
     "GOOGLE_SHEET_ID": "1IpaESeKSulKyddOh7baMAzmSnY02CCkisQDCgMn8cg8",
     "GOOGLE_SERVICE_ACCOUNT_EMAIL": "decklist-service-account@premodern-hamburg.iam.gserviceaccount.com",
-    "GITHUB_REPO": "Poltergeist/premodern-hamburg"
+    "GITHUB_REPO": "Poltergeist/premodern-hamburg",
+    "GOOGLE_OAUTH_CLIENT_ID": "109294003238-l8luf4uk507ui1itgo5iqlvpfn2prq1l.apps.googleusercontent.com",
+    "ALLOWED_UPLOADER_EMAILS": "spectator.networx@gmail.com"
   }
 }

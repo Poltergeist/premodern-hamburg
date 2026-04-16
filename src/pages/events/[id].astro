@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getEventById, getDecklistsForEvent, events } from '../../data/events';
+import { getEventById, getDecklistsForEvent, getStandingsForEvent, events } from '../../data/events';
 
 export async function getStaticPaths() {
   return events.map(event => ({
@@ -16,9 +16,11 @@ if (!event) {
 }
 
 const decklists = getDecklistsForEvent(event.id);
+const standings = getStandingsForEvent(event.id);
 const WORKER_URL = import.meta.env.DEV
-  ? "http://localhost:8787"
+  ? "http://localhost:8788"
   : "https://premodern-decklist-api.premodern-hamburg.workers.dev";
+const GOOGLE_CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID || "";
 ---
 
 <BaseLayout title={event.name}>
@@ -148,6 +150,63 @@ const WORKER_URL = import.meta.env.DEV
           </div>
 
           <div id="form-status" class="form-status" style="display: none;"></div>
+        </div>
+        )}
+
+        {event.status === 'completed' && (
+        <div class="card" id="standings-section" data-event-id={event.id}>
+          <h2>🏆 Standings</h2>
+
+          {standings.length > 0 ? (
+            <div class="standings-table-wrapper">
+              <table class="standings-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Spieler</th>
+                    <th>Punkte</th>
+                    <th>OW%</th>
+                    <th>GW%</th>
+                    <th>OGW%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((s) => (
+                    <tr>
+                      <td>{s.rank}</td>
+                      <td>{s.player}</td>
+                      <td>{s.points}</td>
+                      <td>{s.owp}</td>
+                      <td>{s.gwp}</td>
+                      <td>{s.ogwp}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p class="no-standings">Noch keine Standings vorhanden.</p>
+          )}
+
+          {standings.length === 0 && (
+            <>
+              <button id="admin-signin" class="admin-link" style="margin-top: 1.5rem;">
+                Standings hochladen
+              </button>
+
+              <div id="admin-upload" style="display: none; margin-top: 1.5rem;">
+                <label class="file-input-wrapper">
+                  <span class="file-input-label" id="file-label">CSV-Datei auswählen...</span>
+                  <input type="file" id="standings-csv" accept=".csv" class="file-input-hidden" />
+                </label>
+                <button id="upload-standings" class="btn" style="width: 100%; margin-top: 0.75rem;">
+                  Hochladen
+                </button>
+              </div>
+
+              <div id="standings-status" class="form-status" style="display: none;"></div>
+            </>
+          )}
         </div>
         )}
 
@@ -542,9 +601,104 @@ const WORKER_URL = import.meta.env.DEV
       color: var(--color-red);
       border: 1px solid var(--color-red);
     }
+
+    /* Standings */
+    .standings-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .standings-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .standings-table th,
+    .standings-table td {
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .standings-table th {
+      color: var(--color-text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .standings-table td:first-child,
+    .standings-table th:first-child {
+      text-align: center;
+      width: 3rem;
+    }
+
+    .standings-table td:nth-child(n+3),
+    .standings-table th:nth-child(n+3) {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .standings-table tbody tr:hover {
+      background: var(--color-medium-gray);
+    }
+
+    .no-standings {
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    .admin-link {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .admin-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    .file-input-wrapper {
+      display: block;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px dashed var(--color-border);
+      background: var(--color-medium-gray);
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .file-input-wrapper:hover {
+      border-color: var(--color-blue);
+    }
+
+    .file-input-wrapper.has-file {
+      border-style: solid;
+      border-color: var(--color-green);
+    }
+
+    .file-input-label {
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+
+    .file-input-wrapper.has-file .file-input-label {
+      color: var(--color-text);
+    }
+
+    .file-input-hidden {
+      display: none;
+    }
   </style>
 
-  <script is:inline define:vars={{ WORKER_URL, eventId: event.id }}>
+  <script is:inline define:vars={{ WORKER_URL, eventId: event.id, GOOGLE_CLIENT_ID }}>
     // Show decklists section for upcoming events once the event has started
     const decklistsSection = document.getElementById("decklists-section");
     if (decklistsSection && decklistsSection.style.display === "none") {
@@ -658,6 +812,98 @@ const WORKER_URL = import.meta.env.DEV
       statusEl.textContent = msg;
       statusEl.className = "form-status " + type;
       statusEl.style.display = "block";
+    }
+
+    // Standings upload
+    const adminSignin = document.getElementById("admin-signin");
+    const adminUpload = document.getElementById("admin-upload");
+    const uploadBtn = document.getElementById("upload-standings");
+    const standingsStatus = document.getElementById("standings-status");
+    let standingsIdToken = null;
+
+    function loadGIS() {
+      return new Promise((resolve) => {
+        if (window.google && window.google.accounts) { resolve(); return; }
+        const s = document.createElement("script");
+        s.src = "https://accounts.google.com/gsi/client";
+        s.onload = resolve;
+        document.head.appendChild(s);
+      });
+    }
+
+    function showStandingsStatus(msg, type) {
+      standingsStatus.textContent = msg;
+      standingsStatus.className = "form-status " + type;
+      standingsStatus.style.display = "block";
+    }
+
+    if (adminSignin && GOOGLE_CLIENT_ID) {
+      adminSignin.addEventListener("click", async () => {
+        await loadGIS();
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: function(response) {
+            standingsIdToken = response.credential;
+            adminSignin.style.display = "none";
+            adminUpload.style.display = "block";
+          },
+        });
+        google.accounts.id.prompt();
+      });
+    }
+
+    const fileInput = document.getElementById("standings-csv");
+    const fileLabel = document.getElementById("file-label");
+    if (fileInput && fileLabel) {
+      fileInput.addEventListener("change", () => {
+        const name = fileInput.files[0]?.name;
+        if (name) {
+          fileLabel.textContent = name;
+          fileInput.closest(".file-input-wrapper").classList.add("has-file");
+        } else {
+          fileLabel.textContent = "CSV-Datei auswählen...";
+          fileInput.closest(".file-input-wrapper").classList.remove("has-file");
+        }
+      });
+    }
+
+    if (uploadBtn) {
+      uploadBtn.addEventListener("click", async () => {
+        const fileInput = document.getElementById("standings-csv");
+        const file = fileInput && fileInput.files[0];
+        if (!file || !standingsIdToken) {
+          showStandingsStatus("Bitte eine CSV-Datei auswählen.", "error");
+          return;
+        }
+
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = "Wird hochgeladen...";
+
+        try {
+          const formData = new FormData();
+          formData.append("eventId", eventId);
+          formData.append("file", file);
+
+          const res = await fetch(WORKER_URL + "/standings", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + standingsIdToken },
+            body: formData,
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            showStandingsStatus("Standings erfolgreich hochgeladen! (" + data.rowCount + " Einträge)", "success");
+            adminUpload.style.display = "none";
+          } else {
+            showStandingsStatus(data.error || "Fehler beim Hochladen.", "error");
+          }
+        } catch {
+          showStandingsStatus("Netzwerkfehler. Bitte erneut versuchen.", "error");
+        } finally {
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = "Hochladen";
+        }
+      });
     }
   </script>
 </BaseLayout>

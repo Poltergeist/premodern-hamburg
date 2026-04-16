@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "sync": "tsx scripts/sync-events.ts",
-    "sync:decklists": "tsx scripts/sync-decklists.ts"
+    "sync:decklists": "tsx scripts/sync-decklists.ts",
+    "sync:standings": "tsx scripts/sync-standings.ts"
   },
   "engines": {
     "node": ">=24"
