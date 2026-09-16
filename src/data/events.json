@@ -358,5 +358,131 @@
     "prizes": "Premodern Staples",
     "registrationLink": "https://topdeck.gg/event/untap-altona-premodern-weekly-4",
     "status": "completed"
+  },
+  {
+    "id": "2026-09-16-hamburg",
+    "date": "Mittwoch, 16.09.2026",
+    "datetime": "2026-09-16T18:30:00",
+    "name": "PreModern Hamburg - 16. September 2026",
+    "category": "Untap Altona PreModern",
+    "location": {
+      "name": "Weidenkantine",
+      "address": "Spritzenpl. 5, 22765 Hamburg, Germany",
+      "url": "https://www.weidenkantine.de/"
+    },
+    "description": "Jeden Mittwoch in der neuen Weidenkantine am Spritzenplatz.\nEintritt frei für Untap Altona Verieinsmitglieder.\n\nProxies sind erlaubt. Bitte nur Original Layout, Print (Farbe), Text (Deutsch oder Englisch) und Bild (MTGO exklusive Bilder sind auch ok). Proxies müssen als solche erkennbar sein. Insbesondere ist das Spielen von IE/CE/gold-bordered Karten erlaubt.",
+    "format": "Premodern",
+    "entryFee": "5€",
+    "prizes": "Premodern Staples",
+    "registrationLink": "https://topdeck.gg/event/untap-altona-premodern-weekly-6",
+    "status": "upcoming"
+  },
+  {
+    "id": "2026-09-23-hamburg",
+    "date": "Mittwoch, 23.09.2026",
+    "datetime": "2026-09-23T18:30:00",
+    "name": "PreModern Hamburg - 23. September 2026",
+    "category": "Untap Altona PreModern",
+    "location": {
+      "name": "Weidenkantine",
+      "address": "Spritzenpl. 5, 22765 Hamburg, Germany",
+      "url": "https://www.weidenkantine.de/"
+    },
+    "description": "Jeden Mittwoch in der neuen Weidenkantine am Spritzenplatz.\nEintritt frei für Untap Altona Verieinsmitglieder.\n\nProxies sind erlaubt. Bitte nur Original Layout, Print (Farbe), Text (Deutsch oder Englisch) und Bild (MTGO exklusive Bilder sind auch ok). Proxies müssen als solche erkennbar sein. Insbesondere ist das Spielen von IE/CE/gold-bordered Karten erlaubt.",
+    "format": "Premodern",
+    "entryFee": "5€",
+    "prizes": "Premodern Staples",
+    "registrationLink": "https://topdeck.gg/event/untap-altona-premodern-weekly-336",
+    "status": "upcoming"
+  },
+  {
+    "id": "2026-09-30-hamburg",
+    "date": "Mittwoch, 30.09.2026",
+    "datetime": "2026-09-30T18:30:00",
+    "name": "PreModern Hamburg - 30. September 2026",
+    "category": "Untap Altona PreModern",
+    "location": {
+      "name": "Weidenkantine",
+      "address": "Spritzenpl. 5, 22765 Hamburg, Germany",
+      "url": "https://www.weidenkantine.de/"
+    },
+    "description": "Jeden Mittwoch in der neuen Weidenkantine am Spritzenplatz.\nEintritt frei für Untap Altona Verieinsmitglieder.\n\nProxies sind erlaubt. Bitte nur Original Layout, Print (Farbe), Text (Deutsch oder Englisch) und Bild (MTGO exklusive Bilder sind auch ok). Proxies müssen als solche erkennbar sein. Insbesondere ist das Spielen von IE/CE/gold-bordered Karten erlaubt.",
+    "format": "Premodern",
+    "entryFee": "5€",
+    "prizes": "Premodern Staples",
+    "registrationLink": "https://topdeck.gg/event/untap-altona-premodern-weekly-826",
+    "status": "upcoming"
+  },
+  {
+    "id": "2026-10-07-hamburg",
+    "date": "Mittwoch, 07.10.2026",
+    "datetime": "2026-10-07T18:30:00",
+    "name": "PreModern Hamburg - 7. Oktober 2026",
+    "category": "Untap Altona PreModern",
+    "location": {
+      "name": "Weidenkantine",
+      "address": "Spritzenpl. 5, 22765 Hamburg, Germany",
+      "url": "https://www.weidenkantine.de/"
+    },
+    "description": "Jeden Mittwoch in der neuen Weidenkantine am Spritzenplatz.\nEintritt frei für Untap Altona Verieinsmitglieder.\n\nProxies sind erlaubt. Bitte nur Original Layout, Print (Farbe), Text (Deutsch oder Englisch) und Bild (MTGO exklusive Bilder sind auch ok). Proxies müssen als solche erkennbar sein. Insbesondere ist das Spielen von IE/CE/gold-bordered Karten erlaubt.",
+    "format": "Premodern",
+    "entryFee": "5€",
+    "prizes": "Premodern Staples",
+    "registrationLink": "https://topdeck.gg/event/untap-altona-premodern-weekly-299",
+    "status": "upcoming"
+  },
+  {
+    "id": "2026-10-14-hamburg",
+    "date": "Mittwoch, 14.10.2026",
+    "datetime": "2026-10-14T18:30:00",
+    "name": "PreModern Hamburg - 14. Oktober 2026",
+    "category": "Untap Altona PreModern",
+    "location": {
+      "name": "Weidenkantine",
+      "address": "Spritzenpl. 5, 22765 Hamburg, Germany",
+      "url": "https://www.weidenkantine.de/"
+    },
+    "description": "Jeden Mittwoch in der neuen Weidenkantine am Spritzenplatz.\nEintritt frei für Untap Altona Verieinsmitglieder.\n\nProxies sind erlaubt. Bitte nur Original Layout, Print (Farbe), Text (Deutsch oder Englisch) und Bild (MTGO exklusive Bilder sind auch ok). Proxies müssen als solche erkennbar sein. Insbesondere ist das Spielen von IE/CE/gold-bordered Karten erlaubt.",
+    "format": "Premodern",
+    "entryFee": "5€",
+    "prizes": "Premodern Staples",
+    "registrationLink": "https://topdeck.gg/event/untap-altona-premodern-weekly-585",
+    "status": "upcoming"
+  },
+  {
+    "id": "2026-10-21-hamburg",
+    "date": "Mittwoch, 21.10.2026",
+    "datetime": "2026-10-21T18:30:00",
+    "name": "PreModern Hamburg - 21. Oktober 2026",
+    "category": "Untap Altona PreModern",
+    "location": {
+      "name": "Weidenkantine",
+      "address": "Spritzenpl. 5, 22765 Hamburg, Germany",
+      "url": "https://www.weidenkantine.de/"
+    },
+    "description": "Jeden Mittwoch in der neuen Weidenkantine am Spritzenplatz.\nEintritt frei für Untap Altona Verieinsmitglieder.\n\nProxies sind erlaubt. Bitte nur Original Layout, Print (Farbe), Text (Deutsch oder Englisch) und Bild (MTGO exklusive Bilder sind auch ok). Proxies müssen als solche erkennbar sein. Insbesondere ist das Spielen von IE/CE/gold-bordered Karten erlaubt.",
+    "format": "Premodern",
+    "entryFee": "5€",
+    "prizes": "Premodern Staples",
+    "registrationLink": "https://topdeck.gg/event/untap-altona-premodern-weekly-916",
+    "status": "upcoming"
+  },
+  {
+    "id": "2026-10-28-hamburg",
+    "date": "Mittwoch, 28.10.2026",
+    "datetime": "2026-10-28T18:30:00",
+    "name": "PreModern Hamburg - 28. Oktober 2026",
+    "category": "Untap Altona PreModern",
+    "location": {
+      "name": "Weidenkantine",
+      "address": "Spritzenpl. 5, 22765 Hamburg, Germany",
+      "url": "https://www.weidenkantine.de/"
+    },
+    "description": "Jeden Mittwoch in der neuen Weidenkantine am Spritzenplatz.\nEintritt frei für Untap Altona Verieinsmitglieder.\n\nProxies sind erlaubt. Bitte nur Original Layout, Print (Farbe), Text (Deutsch oder Englisch) und Bild (MTGO exklusive Bilder sind auch ok). Proxies müssen als solche erkennbar sein. Insbesondere ist das Spielen von IE/CE/gold-bordered Karten erlaubt.",
+    "format": "Premodern",
+    "entryFee": "5€",
+    "prizes": "Premodern Staples",
+    "registrationLink": "https://topdeck.gg/event/untap-altona-premodern-weekly-392",
+    "status": "upcoming"
   }
 ]
